@@ -1,9 +1,9 @@
 import { Controller, Get, Post } from '@nestjs/common';
-import { EventsService } from './events.service';
+import { ChatService } from './chat.service';
 
-@Controller('events')
-export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+@Controller('chat')
+export class ChatController {
+  constructor(private readonly eventsService: ChatService) {}
 
   @Get()
   async getHello() {

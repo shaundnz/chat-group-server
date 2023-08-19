@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { Message } from 'src/entities';
 
 @Injectable()
-export class EventsService {
+export class ChatService {
   constructor(
     private readonly em: EntityManager,
     @InjectRepository(Message)

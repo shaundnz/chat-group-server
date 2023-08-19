@@ -7,8 +7,6 @@ import {
   WsResponse,
   ConnectedSocket,
 } from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
@@ -16,7 +14,7 @@ import { Server, Socket } from 'socket.io';
     origin: '*',
   },
 })
-export class EventsGateway implements OnGatewayConnection {
+export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
