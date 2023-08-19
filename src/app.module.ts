@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { EventsModule } from './modules/events/events.module';
+import { ChatModule } from './modules/chat/chat.module';
 import { OrmModule } from './modules/orm/orm.module';
+import { ChannelsModule } from './modules/channels/channels.module';
 
 @Module({
-  imports: [OrmModule, EventsModule],
+  imports: [OrmModule, ChatModule, ChannelsModule],
   controllers: [AppController],
   providers: [AppService],
 })

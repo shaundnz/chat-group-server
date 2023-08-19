@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 
-import { Message } from 'src/entities';
+import { Message, Channel } from 'src/entities';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import { Message } from 'src/entities';
       type: 'sqlite',
     }),
     MikroOrmModule.forFeature({
-      entities: [Message],
+      entities: [Message, Channel],
     }),
   ],
   exports: [MikroOrmModule],
