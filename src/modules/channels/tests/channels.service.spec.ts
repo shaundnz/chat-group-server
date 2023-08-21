@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { Channel } from '../../../entities';
+import { Channel } from '../../../database/entities';
 import { ChannelsService } from '../channels.service';
 import { EntityManager } from '@mikro-orm/core';
 import { CreateChannelDto } from 'src/contracts';

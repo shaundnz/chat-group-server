@@ -1,5 +1,6 @@
 import { wrap } from '@mikro-orm/core';
-import { Channel } from 'src/entities';
+import { IsNotEmpty, IsString } from 'class-validator';
+import { Channel } from 'src/database/entities';
 
 export class ChannelDto {
   id: string;
@@ -8,7 +9,12 @@ export class ChannelDto {
 }
 
 export class CreateChannelDto {
+  @IsString()
+  @IsNotEmpty()
   title: string;
+
+  @IsString()
+  @IsNotEmpty()
   description: string;
 }
 

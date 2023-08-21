@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-
-import { Message, Channel } from 'src/entities';
+import { Message, Channel } from '../../database/entities';
+import mikroOrmConfig from '../../mikro-orm.config';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      entities: ['./dist/entities'],
-      entitiesTs: ['./src/entities'],
-      dbName: 'chat-app-db.sqlite3',
-      type: 'sqlite',
-    }),
+    MikroOrmModule.forRoot(mikroOrmConfig),
     MikroOrmModule.forFeature({
       entities: [Message, Channel],
     }),

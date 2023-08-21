@@ -18,6 +18,11 @@ export class ChannelsController {
     return await this.channelsService.getChannels();
   }
 
+  @Get('/default')
+  async getDefaultChannel(): Promise<ChannelDto> {
+    return await this.channelsService.getDefaultChannel();
+  }
+
   @Get(':id')
   async getChannel(@Param('id') id: string): Promise<ChannelDto> {
     const channel = await this.channelsService.getChannelById(id);
