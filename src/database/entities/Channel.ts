@@ -15,4 +15,7 @@ export class Channel extends CustomBaseEntity {
     mappedBy: (message) => message.channel,
   })
   messages = new Collection<Message>(this);
+
+  @Property()
+  default: boolean = false;
 }
