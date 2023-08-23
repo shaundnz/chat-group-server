@@ -1,41 +1,44 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateChannelDto } from '../../../contracts';
+import { ChannelDto, CreateChannelDto } from '../../../contracts';
 import { ChannelsController } from '../channels.controller';
 import { ChannelsService } from '../channels.service';
 import { NotFoundException } from '@nestjs/common';
 
 describe('ChannelsController', () => {
   let controller: ChannelsController;
+  const initialChannels: ChannelDto[] = [
+    {
+      id: '1',
+      title: 'Welcome channel',
+      description: 'description 1',
+    },
+    {
+      id: '2',
+      title: 'Another channel',
+      description: 'description 2',
+    },
+  ];
 
   const mockChannelsService = {
     getChannels: jest.fn().mockImplementation(() => {
-      return Promise.resolve([
-        {
-          id: '1',
-          title: 'Welcome channel',
-          description: 'description 1',
-        },
-        {
-          id: '2',
-          title: 'Another channel',
-          description: 'description 2',
-        },
-      ]);
+      return Promise.resolve(initialChannels);
     }),
 
-    getChannelById: jest.fn().mockImplementation(() => {
-      return Promise.resolve({
-        id: '1',
-        title: 'Welcome channel',
-        description: 'description 1',
-      });
+    getDefaultChannel: jest.fn().mockImplementation(() => {
+      return Promise.resolve(initialChannels[0]);
+    }),
+
+    getChannelById: jest.fn().mockImplementation((id: string) => {
+      return Promise.resolve(
+        initialChannels.find((channel) => channel.id === id),
+      );
     }),
 
     createChannel: jest
       .fn()
       .mockImplementation((createChannelDto: CreateChannelDto) => {
         return Promise.resolve({
-          id: '1',
+          id: '123-456',
           title: createChannelDto.title,
           description: createChannelDto.description,
         });
@@ -63,14 +66,27 @@ describe('ChannelsController', () => {
   it('should get channels', async () => {
     const channels = await controller.getAllChannels();
     expect(channels).toHaveLength(2);
-    expect(channels[0]).toHaveProperty('title', 'Welcome channel');
-    expect(channels[1]).toHaveProperty('title', 'Another channel');
+    expect(channels).toEqual(initialChannels);
+  });
+
+  it('should get the default channel', async () => {
+    const defaultChannel = await controller.getDefaultChannel();
+    expect(defaultChannel).toEqual(initialChannels[0]);
+  });
+
+  it('should throw a 404 error if the default channel does not exist', async () => {
+    mockChannelsService.getDefaultChannel.mockImplementationOnce(() =>
+      Promise.resolve(null),
+    );
+    await expect(controller.getDefaultChannel()).rejects.toThrowError(
+      NotFoundException,
+    );
   });
 
   it('should get a channel by id', async () => {
-    const channel = await controller.getChannel('1');
+    const channel = await controller.getChannel('2');
     expect(channel).not.toBeNull();
-    expect(channel).toHaveProperty('title', 'Welcome channel');
+    expect(channel).toEqual(initialChannels[1]);
   });
 
   it('should throw a 404 error if the channel does not exist', async () => {

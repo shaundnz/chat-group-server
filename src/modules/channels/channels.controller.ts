@@ -20,7 +20,11 @@ export class ChannelsController {
 
   @Get('/default')
   async getDefaultChannel(): Promise<ChannelDto> {
-    return await this.channelsService.getDefaultChannel();
+    const channel = await this.channelsService.getDefaultChannel();
+    if (channel === null) {
+      throw new NotFoundException(`Default channel does not exist`);
+    }
+    return channel;
   }
 
   @Get(':id')

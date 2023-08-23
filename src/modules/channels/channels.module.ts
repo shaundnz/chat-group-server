@@ -7,5 +7,6 @@ import { ChannelsService } from './channels.service';
   imports: [OrmModule],
   controllers: [ChannelsController],
   providers: [ChannelsService],
+  exports: [ChannelsService],
 })
 export class ChannelsModule {}

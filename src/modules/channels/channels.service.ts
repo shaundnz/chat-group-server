@@ -1,6 +1,5 @@
-import { EntityRepository } from '@mikro-orm/sqlite';
+import { EntityRepository, EntityManager } from '@mikro-orm/sqlite';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityManager } from '@mikro-orm/core';
 import { Injectable } from '@nestjs/common';
 import { ChannelDto, ChannelMapper, CreateChannelDto } from '../../contracts';
 import { Channel } from '../../database/entities';
@@ -28,14 +27,10 @@ export class ChannelsService {
     return ChannelMapper.EntityToDto(channel);
   }
 
-  async getDefaultChannel(): Promise<ChannelDto> {
-    const channel = await this.channelRepository.findOne({ title: 'Welcome' });
+  async getDefaultChannel(): Promise<ChannelDto | null> {
+    const channel = await this.channelRepository.findOne({ default: true });
     if (channel === null) {
-      return await this.createChannel({
-        title: 'Welcome',
-        description:
-          'Welcome to my chat-app, this is the default channel all users initially join',
-      });
+      return null;
     }
     return ChannelMapper.EntityToDto(channel);
   }

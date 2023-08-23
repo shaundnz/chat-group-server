@@ -68,10 +68,13 @@ describe('channels', () => {
   });
 
   it('POST /channels creates a new channel', async () => {
-    await request(app.getHttpServer())
+    const newChannelRes = await request(app.getHttpServer())
       .post('/channels')
       .send({ title: 'new channel', description: 'new channel description' })
       .expect(201);
+
+    expect(newChannelRes.body.title).toBe('new channel');
+    expect(newChannelRes.body.description).toBe('new channel description');
 
     const res = await request(app.getHttpServer()).get('/channels').expect(200);
     expect(res.body).toHaveLength(2);
