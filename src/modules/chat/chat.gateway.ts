@@ -1,13 +1,14 @@
 import {
-  MessageBody,
   SubscribeMessage,
   OnGatewayConnection,
   WebSocketGateway,
-  WebSocketServer,
   WsResponse,
-  ConnectedSocket,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
+import { ChannelsService } from '../channels/channels.service';
+import { MikroORM, UseRequestContext } from '@mikro-orm/core';
+import { MessageDto } from '../../contracts';
 
 @WebSocketGateway({
   cors: {
@@ -18,23 +19,28 @@ export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('events')
+  constructor(
+    private readonly orm: MikroORM,
+    private readonly channelsService: ChannelsService,
+  ) {}
+
+  @SubscribeMessage('message:send')
   handleEvent(
-    @MessageBody() data: string,
-    @ConnectedSocket() client: Socket,
+    client: Socket,
+    data: Omit<MessageDto, 'id'>,
   ): WsResponse<unknown> {
-    const event = 'events';
-    client.to('welcome').emit('update', { room: 'welcome', message: data });
+    const event = 'message:send';
+    client.to(data.channelId).emit('message:received', {
+      channelId: data.channelId,
+      message: data.content,
+    });
     return { event, data };
   }
 
-  @SubscribeMessage('identity')
-  async identity(@MessageBody() data: number): Promise<number> {
-    return data;
-  }
-
-  handleConnection(client: Socket) {
-    console.log('Joined');
-    client.join('welcome');
+  @UseRequestContext()
+  async handleConnection(client: Socket) {
+    const channels = await this.channelsService.getChannels();
+    await client.join(channels.map((channel) => channel.id));
+    client.emit('channels:joined');
   }
 }

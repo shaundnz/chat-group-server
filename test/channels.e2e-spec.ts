@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ChannelsModule } from '../src/modules/channels/channels.module';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MikroORM } from '@mikro-orm/core';
-import { TestDatabaseSeeder } from '../src/database/seeders';
+import { ChannelsTestDatabaseSeeder } from '../src/database/seeders';
 
 describe('channels', () => {
   let app: INestApplication;
@@ -28,7 +28,7 @@ describe('channels', () => {
     // Setup the database
     const seeder = app.get(MikroORM).getSeeder();
     await app.get(MikroORM).getSchemaGenerator().refreshDatabase();
-    await seeder.seed(TestDatabaseSeeder);
+    await seeder.seed(ChannelsTestDatabaseSeeder);
 
     await app.init();
   });

@@ -1,1 +1,2 @@
-export * from './seeder';
+export * from './DatabaseSeeder';
+export * from './TestSeeders';

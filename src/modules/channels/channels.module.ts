@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { OrmModule } from '../orm/orm.module';
+
 import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { Channel } from '../..//database/entities';
 
 @Module({
-  imports: [OrmModule],
+  imports: [MikroOrmModule.forFeature({ entities: [Channel] })],
   controllers: [ChannelsController],
   providers: [ChannelsService],
   exports: [ChannelsService],
