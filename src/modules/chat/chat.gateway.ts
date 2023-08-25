@@ -40,7 +40,7 @@ export class ChatGateway implements OnGatewayConnection {
   @UseRequestContext()
   async handleConnection(client: Socket) {
     const channels = await this.channelsService.getChannels();
-    await client.join(channels.map((channel) => channel.id));
+    client.join(channels.map((channel) => channel.id));
     client.emit('channels:joined');
   }
 }
