@@ -1,22 +1,6 @@
 import { wrap } from '@mikro-orm/core';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { Channel } from 'src/database/entities';
-
-export class ChannelDto {
-  id: string;
-  title: string;
-  description: string;
-}
-
-export class CreateChannelDto {
-  @IsString()
-  @IsNotEmpty()
-  title: string;
-
-  @IsString()
-  @IsNotEmpty()
-  description: string;
-}
+import { ChannelDto } from '../contracts';
+import { Channel } from '../database/entities';
 
 export class ChannelMapper {
   static EntityToDto(channel: Channel): ChannelDto {

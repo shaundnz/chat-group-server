@@ -6,8 +6,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { ChannelsService } from '../channels/channels.service';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
+import { ChannelsService } from '../channels/channels.service';
 import { MessageDto } from '../../contracts';
 
 @WebSocketGateway({

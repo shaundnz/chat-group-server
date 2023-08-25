@@ -1,10 +1,9 @@
-import { Channel, Message } from '../../../database/entities';
+import { Message } from '../../../database/entities';
 import { ChatGateway } from '../chat.gateway';
 import { ChannelsService } from '../../channels/channels.service';
 import { Test } from '@nestjs/testing';
 import { MikroORM } from '@mikro-orm/core';
-
-type TestChannelEntity = Omit<Channel, 'createdAt' | 'updatedAt' | 'messages'>;
+import { ChannelDto } from '../../../contracts';
 
 describe('ChatGateway', () => {
   let chatGateway: ChatGateway;
@@ -15,23 +14,21 @@ describe('ChatGateway', () => {
     emit: jest.fn(),
   };
 
-  const channelEntities: TestChannelEntity[] = [
+  const channels: ChannelDto[] = [
     {
       id: '1',
       title: 'Welcome channel',
       description: 'description 1',
-      default: true,
     },
     {
       id: '2',
       title: 'Another channel',
       description: 'description 2',
-      default: false,
     },
   ];
 
   const mockChannelsService = {
-    getChannels: jest.fn().mockImplementation(() => channelEntities),
+    getChannels: jest.fn().mockImplementation(() => channels),
   };
 
   beforeEach(async () => {

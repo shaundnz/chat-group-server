@@ -1,2 +1,3 @@
-export * from './Channel';
-export * from './Message';
+export * from './ChannelDto';
+export * from './CreateChannelRequestDto';
+export * from './MessageDto';

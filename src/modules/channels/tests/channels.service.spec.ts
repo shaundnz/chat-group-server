@@ -5,7 +5,7 @@ import { ChannelsService } from '../channels.service';
 import { EntityManager } from '@mikro-orm/sqlite';
 import { CreateChannelDto } from '../../../contracts';
 
-jest.mock('../../../contracts', () => ({
+jest.mock('../../../mappers', () => ({
   ChannelMapper: {
     EntityToDto: jest.fn().mockImplementation((channel) => channel),
   },
