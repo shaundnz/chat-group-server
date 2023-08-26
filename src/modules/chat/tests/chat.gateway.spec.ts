@@ -4,6 +4,7 @@ import { ChannelsService } from '../../channels/channels.service';
 import { Test } from '@nestjs/testing';
 import { MikroORM } from '@mikro-orm/core';
 import { ChannelDto } from '../../../contracts';
+import { ChatService } from '../chat.service';
 
 describe('ChatGateway', () => {
   let chatGateway: ChatGateway;
@@ -19,16 +20,22 @@ describe('ChatGateway', () => {
       id: '1',
       title: 'Welcome channel',
       description: 'description 1',
+      messages: [],
     },
     {
       id: '2',
       title: 'Another channel',
       description: 'description 2',
+      messages: [],
     },
   ];
 
   const mockChannelsService = {
     getChannels: jest.fn().mockImplementation(() => channels),
+  };
+
+  const mockChatService = {
+    saveMessage: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -47,6 +54,10 @@ describe('ChatGateway', () => {
         {
           provide: ChannelsService,
           useValue: mockChannelsService,
+        },
+        {
+          provide: ChatService,
+          useValue: mockChatService,
         },
       ],
     }).compile();

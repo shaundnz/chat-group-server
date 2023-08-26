@@ -44,6 +44,7 @@ describe('channels', () => {
     expect(res.body[0].description).toBe(
       'Welcome to my chat-app, this is the default channel all users initially join',
     );
+    expect(res.body[0].messages).toHaveLength(2);
   });
 
   it('GET /channels/default gets the default channel', async () => {
@@ -54,6 +55,7 @@ describe('channels', () => {
     expect(res.body.description).toBe(
       'Welcome to my chat-app, this is the default channel all users initially join',
     );
+    expect(res.body.messages).toHaveLength(2);
   });
 
   it('GET /channels/:id gets channel by id', async () => {

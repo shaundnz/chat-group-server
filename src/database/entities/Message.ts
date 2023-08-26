@@ -14,8 +14,9 @@ export class Message extends CustomBaseEntity {
   })
   channel: Channel;
 
-  constructor(content: string) {
+  constructor(content: string, channel: Channel) {
     super();
     this.content = content;
+    this.channel = channel;
   }
 }

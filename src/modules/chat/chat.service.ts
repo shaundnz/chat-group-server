@@ -1,7 +1,8 @@
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager, EntityRepository } from '@mikro-orm/sqlite';
 import { Injectable } from '@nestjs/common';
-import { Message } from '../../database/entities';
+import { Channel, Message } from '../../database/entities';
+import { wrap } from '@mikro-orm/core';
 
 @Injectable()
 export class ChatService {
@@ -9,17 +10,27 @@ export class ChatService {
     private readonly em: EntityManager,
     @InjectRepository(Message)
     private readonly messageRepository: EntityRepository<Message>,
+    @InjectRepository(Channel)
+    private readonly channelRepository: EntityRepository<Channel>,
   ) {}
 
   async getMessages() {
-    return await this.messageRepository.findAll();
+    const messages = await this.messageRepository.findAll();
+    return wrap(messages);
   }
 
-  async createMessage() {
+  async saveMessage(channelId: string, content: string) {
+    const channel = await this.channelRepository.findOne({ id: channelId });
+    if (channel == null) {
+      return null;
+    }
+
     const message = this.messageRepository.create(
-      new Message('Hello this is my message'),
+      new Message(content, channel),
     );
-    await this.em.persistAndFlush(new Message('Hello this is my message'));
+
+    channel.messages.add(message);
+    await this.em.persistAndFlush(channel);
     return message;
   }
 }

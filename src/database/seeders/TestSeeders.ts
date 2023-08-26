@@ -1,15 +1,25 @@
 import { EntityManager } from '@mikro-orm/sqlite';
 import { Seeder } from '@mikro-orm/seeder';
-import { Channel } from '../entities';
+import { Channel, Message } from '../entities';
 
 export class ChannelsTestDatabaseSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
     // will get persisted automatically
-    em.create(Channel, {
+    const channel = em.create(Channel, {
       title: 'Welcome',
       description:
         'Welcome to my chat-app, this is the default channel all users initially join',
       default: true,
+    });
+
+    em.create(Message, {
+      content: 'Hello world',
+      channel: channel,
+    });
+
+    em.create(Message, {
+      content: 'Another message',
+      channel: channel,
     });
   }
 }

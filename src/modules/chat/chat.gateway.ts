@@ -8,7 +8,8 @@ import {
 import { Socket, Server } from 'socket.io';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { ChannelsService } from '../channels/channels.service';
-import { MessageDto } from '../../contracts';
+import { ChatService } from './chat.service';
+import { SendMessageEventDto } from '../../contracts/SendMessageEventDto';
 
 @WebSocketGateway({
   cors: {
@@ -22,18 +23,21 @@ export class ChatGateway implements OnGatewayConnection {
   constructor(
     private readonly orm: MikroORM,
     private readonly channelsService: ChannelsService,
+    private readonly chatService: ChatService,
   ) {}
 
   @SubscribeMessage('message:send')
-  handleEvent(
+  @UseRequestContext()
+  async handleEvent(
     client: Socket,
-    data: Omit<MessageDto, 'id'>,
-  ): WsResponse<unknown> {
+    data: SendMessageEventDto,
+  ): Promise<WsResponse<SendMessageEventDto>> {
     const event = 'message:send';
     client.to(data.channelId).emit('message:received', {
       channelId: data.channelId,
       message: data.content,
     });
+    await this.chatService.saveMessage(data.channelId, data.content);
     return { event, data };
   }
 

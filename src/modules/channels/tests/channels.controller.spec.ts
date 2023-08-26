@@ -11,11 +11,27 @@ describe('ChannelsController', () => {
       id: '1',
       title: 'Welcome channel',
       description: 'description 1',
+      messages: [
+        {
+          id: '3',
+          channelId: '1',
+          createdAt: new Date().toJSON(),
+          content: 'hello',
+        },
+      ],
     },
     {
       id: '2',
       title: 'Another channel',
       description: 'description 2',
+      messages: [
+        {
+          id: '4',
+          channelId: '2',
+          createdAt: new Date().toJSON(),
+          content: 'world',
+        },
+      ],
     },
   ];
 

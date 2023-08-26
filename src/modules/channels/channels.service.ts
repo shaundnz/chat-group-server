@@ -14,12 +14,19 @@ export class ChannelsService {
   ) {}
 
   async getChannels(): Promise<ChannelDto[]> {
-    const channels = await this.channelRepository.findAll();
+    const channels = await this.channelRepository.findAll({
+      populate: ['messages'],
+    });
     return channels.map((channel) => ChannelMapper.EntityToDto(channel));
   }
 
   async getChannelById(id: string): Promise<ChannelDto | null> {
-    const channel = await this.channelRepository.findOne({ id: id });
+    const channel = await this.channelRepository.findOne(
+      { id: id },
+      {
+        populate: ['messages'],
+      },
+    );
 
     if (channel === null) {
       return null;
@@ -29,7 +36,12 @@ export class ChannelsService {
   }
 
   async getDefaultChannel(): Promise<ChannelDto | null> {
-    const channel = await this.channelRepository.findOne({ default: true });
+    const channel = await this.channelRepository.findOne(
+      { default: true },
+      {
+        populate: ['messages'],
+      },
+    );
     if (channel === null) {
       return null;
     }

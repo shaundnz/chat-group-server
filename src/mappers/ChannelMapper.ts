@@ -9,6 +9,12 @@ export class ChannelMapper {
     dto.id = wrappedEntity.id;
     dto.title = wrappedEntity.title;
     dto.description = wrappedEntity.description;
+    dto.messages = channel.messages.toArray().map((message) => ({
+      id: message.id,
+      channelId: message.channelId,
+      createdAt: message.createdAt.toJSON(),
+      content: message.content,
+    }));
     return dto;
   }
 }

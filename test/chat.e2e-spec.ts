@@ -60,9 +60,7 @@ describe('chat', () => {
     });
   });
 
-  beforeEach(async () => {});
-
-  afterEach(() => {
+  afterEach(async () => {
     clientOne.disconnect();
     clientTwo.disconnect();
   });
@@ -83,8 +81,10 @@ describe('chat', () => {
 
     clientOne.connect();
     clientTwo.connect();
-    await eventReception(clientOne, 'channels:joined');
-    await eventReception(clientTwo, 'channels:joined');
+    await Promise.all([
+      eventReception(clientOne, 'channels:joined'),
+      eventReception(clientTwo, 'channels:joined'),
+    ]);
 
     for (const channel of res.body) {
       clientOne.emit('message:send', {
@@ -92,8 +92,33 @@ describe('chat', () => {
         content: 'message content',
       });
 
-      await eventReception(clientTwo, 'message:received');
+      await Promise.all([
+        eventReception(clientTwo, 'message:received'),
+        eventReception(clientOne, 'message:send'),
+      ]);
     }
     expect(messageReceivedCallback).toHaveBeenCalledTimes(3);
+  });
+
+  it('on:message:send saves the message to the database', async () => {
+    const newChannelRes = await request(app.getHttpServer())
+      .post('/channels')
+      .send({ title: 'new channel', description: 'new channel description' })
+      .expect(201);
+
+    clientOne.connect();
+    clientOne.emit('message:send', {
+      channelId: newChannelRes.body.id,
+      content: 'new message',
+    });
+
+    await eventReception(clientOne, 'message:send');
+
+    const channelRes = await request(app.getHttpServer())
+      .get(`/channels/${newChannelRes.body.id}`)
+      .expect(200);
+
+    expect(channelRes.body.messages).toHaveLength(1);
+    expect(channelRes.body.messages[0].content).toBe('new message');
   });
 });

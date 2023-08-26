@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { Channel } from '../../../database/entities';
+import { Channel, Message } from '../../../database/entities';
 import { ChannelsService } from '../channels.service';
 import { EntityManager } from '@mikro-orm/sqlite';
 import { CreateChannelDto } from '../../../contracts';
@@ -11,7 +11,11 @@ jest.mock('../../../mappers', () => ({
   },
 }));
 
-type TestChannelEntity = Omit<Channel, 'createdAt' | 'updatedAt' | 'messages'>;
+type TestMessageEntity = Omit<Message, 'id' | 'updatedAt' | 'channel'>;
+type TestChannelEntity = Omit<
+  Channel,
+  'createdAt' | 'updatedAt' | 'messages'
+> & { messages: TestMessageEntity[] };
 
 describe('ChannelsService', () => {
   let channelsService: ChannelsService;
@@ -22,12 +26,14 @@ describe('ChannelsService', () => {
       title: 'Welcome channel',
       description: 'description 1',
       default: true,
+      messages: [{ createdAt: new Date(), content: 'Hello' }],
     },
     {
       id: '2',
       title: 'Another channel',
       description: 'description 2',
       default: false,
+      messages: [{ createdAt: new Date(), content: 'Another message' }],
     },
   ];
 
@@ -89,9 +95,12 @@ describe('ChannelsService', () => {
       () => channelEntities[0],
     );
     const channel = await channelsService.getDefaultChannel();
-    expect(mockChannelRepository.findOne).toHaveBeenCalledWith({
-      default: true,
-    });
+    expect(mockChannelRepository.findOne).toHaveBeenCalledWith(
+      {
+        default: true,
+      },
+      { populate: ['messages'] },
+    );
     expect(channel).not.toBeNull();
     expect(channel).toEqual(channelEntities[0]);
   });
@@ -99,9 +108,12 @@ describe('ChannelsService', () => {
   it('should return null if the default channel does not exists', async () => {
     mockChannelRepository.findOne.mockImplementationOnce(() => null);
     const channel = await channelsService.getDefaultChannel();
-    expect(mockChannelRepository.findOne).toHaveBeenCalledWith({
-      default: true,
-    });
+    expect(mockChannelRepository.findOne).toHaveBeenCalledWith(
+      {
+        default: true,
+      },
+      { populate: ['messages'] },
+    );
     expect(channel).toBeNull();
   });
 
