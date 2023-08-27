@@ -4,12 +4,17 @@ import {
   WebSocketGateway,
   WsResponse,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { ChannelsService } from '../channels/channels.service';
 import { ChatService } from './chat.service';
-import { SendMessageEventDto } from '../../contracts/SendMessageEventDto';
+import {
+  ReceivedMessageEventDto,
+  SendMessageEventRequestDto,
+  SendMessageEventResponseDto,
+} from '../../contracts';
 
 @WebSocketGateway({
   cors: {
@@ -30,15 +35,25 @@ export class ChatGateway implements OnGatewayConnection {
   @UseRequestContext()
   async handleEvent(
     client: Socket,
-    data: SendMessageEventDto,
-  ): Promise<WsResponse<SendMessageEventDto>> {
+    data: SendMessageEventRequestDto,
+  ): Promise<WsResponse<SendMessageEventResponseDto>> {
     const event = 'message:send';
-    client.to(data.channelId).emit('message:received', {
+    const newMessage = await this.chatService.saveMessage(
+      data.channelId,
+      data.content,
+    );
+    if (!newMessage) {
+      throw new WsException('Could not find channel');
+    }
+    const receivedMessageEventResponseDto: ReceivedMessageEventDto = {
       channelId: data.channelId,
-      message: data.content,
-    });
-    await this.chatService.saveMessage(data.channelId, data.content);
-    return { event, data };
+      content: data.content,
+      createdAt: newMessage.createdAt,
+    };
+    client
+      .to(data.channelId)
+      .emit('message:received', receivedMessageEventResponseDto);
+    return { event, data: { ...data, createdAt: newMessage.createdAt } };
   }
 
   @UseRequestContext()

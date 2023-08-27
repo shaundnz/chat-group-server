@@ -74,7 +74,7 @@ describe('chat', () => {
     expect(res.body).toHaveLength(3);
 
     const messageReceivedCallback = jest.fn((data) => {
-      expect(data.message).toBe('message content');
+      expect(data.content).toBe('message content');
     });
 
     clientTwo.on('message:received', messageReceivedCallback);

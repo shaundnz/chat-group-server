@@ -1,4 +1,4 @@
-export class SendMessageEventDto {
+export class SendMessageEventRequestDto {
   channelId: string;
   content: string;
 }
