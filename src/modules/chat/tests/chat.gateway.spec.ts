@@ -8,6 +8,7 @@ import { ChatService } from '../chat.service';
 
 describe('ChatGateway', () => {
   let chatGateway: ChatGateway;
+  const now = new Date();
 
   const mockClientSocket = {
     to: jest.fn(() => mockClientSocket),
@@ -35,7 +36,13 @@ describe('ChatGateway', () => {
   };
 
   const mockChatService = {
-    saveMessage: jest.fn(),
+    saveMessage: jest
+      .fn()
+      .mockImplementation((channelId: string, content: string) => ({
+        channelId,
+        content,
+        createdAt: now,
+      })),
   };
 
   beforeEach(async () => {
@@ -65,16 +72,24 @@ describe('ChatGateway', () => {
     chatGateway = moduleRef.get<ChatGateway>(ChatGateway);
   });
 
-  it('should send a message to other all users in a channel on message:send', () => {
-    chatGateway.handleEvent(mockClientSocket, {
+  it('should send a message to other all users in a channel on message:send', async () => {
+    await chatGateway.handleEvent(mockClientSocket, {
       channelId: '1',
       content: 'hello',
     });
     expect(mockClientSocket.to).toHaveBeenCalledWith('1');
     expect(mockClientSocket.to().emit).toHaveBeenCalledWith(
       'message:received',
-      { channelId: '1', message: 'hello' },
+      { channelId: '1', content: 'hello', createdAt: now },
     );
+  });
+
+  it('should save the message on message:send', async () => {
+    await chatGateway.handleEvent(mockClientSocket, {
+      channelId: '1',
+      content: 'hello',
+    });
+    expect(mockChatService.saveMessage).toHaveBeenCalledWith('1', 'hello');
   });
 
   it('should add a user to all channels rooms on connection', async () => {
