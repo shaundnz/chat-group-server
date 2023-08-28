@@ -3,6 +3,7 @@ import { ChannelDto, CreateChannelDto } from '../../../contracts';
 import { ChannelsController } from '../channels.controller';
 import { ChannelsService } from '../channels.service';
 import { NotFoundException } from '@nestjs/common';
+import { ChatGateway } from '../../../modules/chat/chat.gateway';
 
 describe('ChannelsController', () => {
   let controller: ChannelsController;
@@ -61,6 +62,10 @@ describe('ChannelsController', () => {
       }),
   };
 
+  const mockChatGateway = {
+    handleActiveClientsOnNewChannelCreated: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ChannelsController],
@@ -68,6 +73,10 @@ describe('ChannelsController', () => {
         {
           provide: ChannelsService,
           useValue: mockChannelsService,
+        },
+        {
+          provide: ChatGateway,
+          useValue: mockChatGateway,
         },
       ],
     }).compile();
@@ -124,5 +133,16 @@ describe('ChannelsController', () => {
     expect(mockChannelsService.createChannel).toHaveBeenCalledWith(
       createChannelDto,
     );
+  });
+
+  it('should fire the gateway handler when a new channel is created', async () => {
+    const createChannelDto = {
+      title: 'New channel',
+      description: 'New channel description',
+    };
+    await controller.createChannel(createChannelDto);
+    expect(
+      mockChatGateway.handleActiveClientsOnNewChannelCreated,
+    ).toHaveBeenLastCalledWith({ id: '123-456', ...createChannelDto });
   });
 });

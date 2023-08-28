@@ -121,4 +121,60 @@ describe('chat', () => {
     expect(channelRes.body.messages).toHaveLength(1);
     expect(channelRes.body.messages[0].content).toBe('new message');
   });
+
+  it('channel:created event is emitted to all connected clients when a new channel is created', async () => {
+    const channelCreatedCallback = jest.fn().mockImplementation();
+
+    clientOne.on('channel:created', channelCreatedCallback);
+    clientTwo.on('channel:created', channelCreatedCallback);
+
+    clientOne.connect();
+    clientTwo.connect();
+    await Promise.all([
+      eventReception(clientOne, 'channels:joined'),
+      eventReception(clientTwo, 'channels:joined'),
+    ]);
+
+    const res = await Promise.all([
+      request(app.getHttpServer())
+        .post('/channels')
+        .send({ title: 'new channel', description: 'new channel description' })
+        .expect(201),
+      eventReception(clientOne, 'channel:created'),
+      eventReception(clientTwo, 'channel:created'),
+    ]);
+
+    expect(channelCreatedCallback).toHaveBeenCalledTimes(2);
+    expect(channelCreatedCallback).toHaveBeenCalledWith({
+      channelId: res[0].body.id,
+    });
+  });
+
+  it('when a channel is created, user is added to the channel room', async () => {
+    clientOne.connect();
+    clientTwo.connect();
+    await Promise.all([
+      eventReception(clientOne, 'channels:joined'),
+      eventReception(clientTwo, 'channels:joined'),
+    ]);
+
+    const res = await Promise.all([
+      request(app.getHttpServer())
+        .post('/channels')
+        .send({ title: 'new channel', description: 'new channel description' })
+        .expect(201),
+      eventReception(clientOne, 'channel:created'),
+      eventReception(clientTwo, 'channel:created'),
+    ]);
+
+    clientOne.emit('message:send', {
+      channelId: res[0].body.id,
+      content: 'message content',
+    });
+
+    await Promise.all([
+      eventReception(clientTwo, 'message:received'),
+      eventReception(clientOne, 'message:send'),
+    ]);
+  });
 });

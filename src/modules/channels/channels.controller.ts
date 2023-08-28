@@ -8,10 +8,14 @@ import {
 } from '@nestjs/common';
 import { ChannelsService } from './channels.service';
 import { ChannelDto, CreateChannelDto } from '../../contracts';
+import { ChatGateway } from '../chat/chat.gateway';
 
 @Controller('channels')
 export class ChannelsController {
-  constructor(private readonly channelsService: ChannelsService) {}
+  constructor(
+    private readonly channelsService: ChannelsService,
+    private readonly chatGateway: ChatGateway,
+  ) {}
 
   @Get()
   async getAllChannels(): Promise<ChannelDto[]> {
@@ -43,6 +47,7 @@ export class ChannelsController {
     const newChannel = await this.channelsService.createChannel(
       createChannelDto,
     );
+    await this.chatGateway.handleActiveClientsOnNewChannelCreated(newChannel);
     return newChannel;
   }
 }

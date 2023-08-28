@@ -8,13 +8,17 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
-import { ChannelsService } from '../channels/channels.service';
 import { ChatService } from './chat.service';
 import {
+  ChannelDto,
   ReceivedMessageEventDto,
   SendMessageEventRequestDto,
   SendMessageEventResponseDto,
 } from '../../contracts';
+import { ChannelCreatedEventResponseDto } from 'src/contracts/ChannelCreatedEventResponseDto';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import { Channel } from '../../database/entities';
+import { EntityRepository } from '@mikro-orm/sqlite';
 
 @WebSocketGateway({
   cors: {
@@ -27,8 +31,9 @@ export class ChatGateway implements OnGatewayConnection {
 
   constructor(
     private readonly orm: MikroORM,
-    private readonly channelsService: ChannelsService,
     private readonly chatService: ChatService,
+    @InjectRepository(Channel)
+    private readonly channelRepository: EntityRepository<Channel>,
   ) {}
 
   @SubscribeMessage('message:send')
@@ -56,9 +61,20 @@ export class ChatGateway implements OnGatewayConnection {
     return { event, data: { ...data, createdAt: newMessage.createdAt } };
   }
 
+  async handleActiveClientsOnNewChannelCreated(newChannel: ChannelDto) {
+    const sockets = await this.server.fetchSockets();
+    sockets.forEach((socket) => {
+      socket.join(newChannel.id);
+    });
+    const channelCreatedEventResponseDto: ChannelCreatedEventResponseDto = {
+      channelId: newChannel.id,
+    };
+    this.server.emit('channel:created', channelCreatedEventResponseDto);
+  }
+
   @UseRequestContext()
   async handleConnection(client: Socket) {
-    const channels = await this.channelsService.getChannels();
+    const channels = await this.channelRepository.findAll();
     client.join(channels.map((channel) => channel.id));
     client.emit('channels:joined');
   }
