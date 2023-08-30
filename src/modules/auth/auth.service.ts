@@ -3,7 +3,7 @@ import { EntityManager, EntityRepository } from '@mikro-orm/sqlite';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../../database/entities/User';
-import { SignUpRequestDto, UserDto } from '../../contracts';
+import { LoginResponseDto, SignUpRequestDto, UserDto } from '../../contracts';
 import { UserMapper } from '../../mappers';
 import { compare, hash } from 'bcrypt';
 
@@ -59,10 +59,11 @@ export class AuthService {
     return UserMapper.EntityToDto(newUser);
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
+  async login(userDto: UserDto): Promise<LoginResponseDto> {
+    const { id, username } = userDto;
+    const payload = { username: username, sub: id };
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken: this.jwtService.sign(payload),
     };
   }
 }
