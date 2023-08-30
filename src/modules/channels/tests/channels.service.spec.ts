@@ -81,6 +81,10 @@ describe('ChannelsService', () => {
     channelsService = moduleRef.get<ChannelsService>(ChannelsService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(channelsService).toBeDefined();
   });

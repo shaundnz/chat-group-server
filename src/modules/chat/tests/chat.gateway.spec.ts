@@ -86,6 +86,10 @@ describe('ChatGateway', () => {
     chatGateway.server = mockServer as unknown as Server;
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should send a message to other all users in a channel on message:send', async () => {
     await chatGateway.handleEvent(mockClientSocket, {
       channelId: '1',

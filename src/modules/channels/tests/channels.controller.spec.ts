@@ -84,6 +84,10 @@ describe('ChannelsController', () => {
     controller = module.get<ChannelsController>(ChannelsController);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
