@@ -13,7 +13,7 @@ async function bootstrap() {
       'http://localhost:4173',
     ],
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
   await app.get(MikroORM).getSchemaGenerator().updateSchema();
   await app.listen(3000);
