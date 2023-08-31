@@ -73,7 +73,7 @@ describe('AuthController', () => {
     );
   });
 
-  it('should return 201 if the user is successfully created', async () => {
+  it('should create a new user', async () => {
     const signUpRequestDto = {
       username: 'usertwo',
       password: 'password',
