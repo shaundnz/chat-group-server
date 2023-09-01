@@ -1,6 +1,7 @@
 import { EntityManager } from '@mikro-orm/sqlite';
 import { Seeder } from '@mikro-orm/seeder';
-import { Channel, Message } from '../entities';
+import { Channel, Message, User } from '../entities';
+import { hash } from 'bcrypt';
 
 export class ChannelsTestDatabaseSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
@@ -42,6 +43,16 @@ export class ChatTestDatabaseSeeder extends Seeder {
     em.create(Channel, {
       title: 'Channel 3',
       description: 'Description 3',
+    });
+  }
+}
+
+export class AuthTestDatabaseSeeder extends Seeder {
+  async run(em: EntityManager): Promise<void> {
+    const hashedPassword = await hash('Password1!', 5);
+    em.create(User, {
+      username: 'userOne',
+      password: hashedPassword,
     });
   }
 }
