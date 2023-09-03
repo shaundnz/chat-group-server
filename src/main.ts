@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MikroORM } from '@mikro-orm/core';
-import { ValidationPipe } from '@nestjs/common';
+import { setupGlobalValidationPipe } from './setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,7 +13,8 @@ async function bootstrap() {
       'http://localhost:4173',
     ],
   });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
+  setupGlobalValidationPipe(app);
   await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
   await app.get(MikroORM).getSchemaGenerator().updateSchema();
   await app.listen(3000);
