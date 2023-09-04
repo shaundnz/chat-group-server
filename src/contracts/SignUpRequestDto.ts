@@ -1,8 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import { IsUniqueUsername, Match } from './validators';
 
 export class SignUpRequestDto {
   @IsString()
   @IsNotEmpty()
+  @IsUniqueUsername()
   username: string;
 
   @IsString()
@@ -11,5 +13,6 @@ export class SignUpRequestDto {
 
   @IsString()
   @IsNotEmpty()
+  @Match(SignUpRequestDto, (s) => s.password)
   confirmPassword: string;
 }
