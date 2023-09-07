@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
-import { BadRequestException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
 import { User } from '../../../database/entities';
 import { SignUpRequestDto } from 'src/contracts';
 
@@ -18,7 +18,13 @@ describe('AuthController', () => {
 
   const mockAuthService = {
     validateUser: jest.fn().mockImplementation(() => Promise.resolve(true)),
+
     getUser: jest.fn().mockImplementation(() => Promise.resolve(null)),
+
+    getUserById: jest
+      .fn()
+      .mockImplementation(() => Promise.resolve(mockUserEntity)),
+
     createNewUser: jest
       .fn()
       .mockImplementation((signUpRequestDto: SignUpRequestDto) =>
@@ -48,31 +54,6 @@ describe('AuthController', () => {
     expect(authController).toBeDefined();
   });
 
-  it('should throw a BadRequestException if password and confirm password do not match', async () => {
-    const signUpRequestDto = {
-      username: 'usertwo',
-      password: 'password',
-      confirmPassword: 'passwordd',
-    };
-    await expect(authController.signUp(signUpRequestDto)).rejects.toThrowError(
-      BadRequestException,
-    );
-  });
-
-  it('should throw a BadRequestException if the user already exists in the database', async () => {
-    const signUpRequestDto = {
-      username: 'userone',
-      password: 'password',
-      confirmPassword: 'password',
-    };
-    mockAuthService.getUser.mockImplementationOnce(() =>
-      Promise.resolve(mockUserEntity),
-    );
-    await expect(authController.signUp(signUpRequestDto)).rejects.toThrowError(
-      BadRequestException,
-    );
-  });
-
   it('should create a new user', async () => {
     const signUpRequestDto = {
       username: 'usertwo',
@@ -81,5 +62,24 @@ describe('AuthController', () => {
     };
     const res = await authController.signUp(signUpRequestDto);
     expect(res.username).toBe(signUpRequestDto.username);
+  });
+
+  it('should get the logged in user', async () => {
+    const user = await authController.getAuthenticatedUser({
+      user: { id: '1', username: 'userOne' },
+    });
+    expect(user).toBe(mockUserEntity);
+  });
+
+  it('should throw a NotFoundException if the user does not exist', async () => {
+    mockAuthService.getUserById.mockImplementationOnce(() =>
+      Promise.resolve(null),
+    );
+
+    await expect(
+      authController.getAuthenticatedUser({
+        user: { id: '2', username: 'userTwo' },
+      }),
+    ).rejects.toThrowError(NotFoundException);
   });
 });

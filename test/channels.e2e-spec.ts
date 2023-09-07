@@ -4,7 +4,8 @@ import { INestApplication } from '@nestjs/common';
 import { MikroORM } from '@mikro-orm/core';
 import { ChannelsTestDatabaseSeeder } from '../src/database/seeders';
 import { AppModule } from '../src/app.module';
-import { setupGlobalValidationPipe } from '../src/setup';
+import { setupApp } from '../src/setup';
+import { createUser, getAccessToken } from './utils';
 
 describe('channels', () => {
   let app: INestApplication;
@@ -16,7 +17,7 @@ describe('channels', () => {
     }).compile();
 
     app = module.createNestApplication();
-    setupGlobalValidationPipe(app);
+    setupApp(app);
 
     // Setup the database
     const seeder = app.get(MikroORM).getSeeder();
@@ -25,23 +26,16 @@ describe('channels', () => {
 
     await app.init();
 
-    await request(app.getHttpServer())
-      .post('/auth/signup')
-      .send({
-        username: 'userOne',
-        password: 'Password1!',
-        confirmPassword: 'Password1!',
-      })
-      .expect(201);
-    const loggedInUser = await request(app.getHttpServer())
-      .post('/auth/login')
-      .send({
-        username: 'userOne',
-        password: 'Password1!',
-      })
-      .expect(200);
+    await createUser(app, {
+      username: 'userOne',
+      password: 'Password1!',
+      confirmPassword: 'Password1!',
+    });
 
-    token = loggedInUser.body.accessToken;
+    token = await getAccessToken(app, {
+      username: 'userOne',
+      password: 'Password1!',
+    });
   });
 
   afterAll(async () => {

@@ -1,17 +1,19 @@
 import * as request from 'supertest';
 import { MikroORM } from '@mikro-orm/core';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ChatTestDatabaseSeeder } from '../src/database/seeders';
-import { ChatModule } from '../src/modules/chat/chat.module';
-import { ChannelsModule } from '../src/modules/channels/channels.module';
 import { Socket, io } from 'socket.io-client';
+import { AppModule } from '../src/app.module';
+import { setupApp } from '../src/setup';
+import { createUser, getAccessToken } from './utils';
 
 describe('chat', () => {
   let app: INestApplication;
   let clientOne: Socket;
+  let userOneAccessToken = '';
   let clientTwo: Socket;
+  let userTwoAccessToken = '';
 
   async function eventReception(from: Socket, event: string): Promise<void> {
     return new Promise<void>((resolve) => {
@@ -23,20 +25,11 @@ describe('chat', () => {
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        MikroOrmModule.forRoot({
-          entities: ['./dist/database/entities'],
-          entitiesTs: ['./src/database/entities'],
-          dbName: ':memory:',
-          type: 'sqlite',
-        }),
-        ChatModule,
-        ChannelsModule,
-      ],
+      imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe());
+    setupApp(app);
 
     // Setup the database
     const seeder = app.get(MikroORM).getSeeder();
@@ -48,15 +41,45 @@ describe('chat', () => {
 
     const appUrl = await app.getUrl();
 
+    const userOne = {
+      username: 'userOne',
+      password: 'Password1!',
+    };
+
+    const userTwo = {
+      username: 'userTwo',
+      password: 'Password2@',
+    };
+
+    await createUser(app, { ...userOne, confirmPassword: userOne.password });
+    await createUser(app, { ...userTwo, confirmPassword: userTwo.password });
+
+    userOneAccessToken = await getAccessToken(app, userOne);
+    userTwoAccessToken = await getAccessToken(app, userTwo);
+
     // Setup sockets
     clientOne = io(appUrl, {
       autoConnect: false,
       transports: ['websocket', 'polling'],
+      auth: {
+        token: userOneAccessToken,
+      },
+    });
+
+    clientOne.on('connect_error', (err) => {
+      throw new Error(err.message);
     });
 
     clientTwo = io(appUrl, {
       autoConnect: false,
       transports: ['websocket', 'polling'],
+      auth: {
+        token: userTwoAccessToken,
+      },
+    });
+
+    clientTwo.on('connect_error', (err) => {
+      throw new Error(err.message);
     });
   });
 
@@ -70,7 +93,10 @@ describe('chat', () => {
   });
 
   it('on:channels:joined adds the client to all channel rooms', async () => {
-    const res = await request(app.getHttpServer()).get('/channels').expect(200);
+    const res = await request(app.getHttpServer())
+      .get('/channels')
+      .set('Authorization', `Bearer ${userOneAccessToken}`)
+      .expect(200);
     expect(res.body).toHaveLength(3);
 
     const messageReceivedCallback = jest.fn((data) => {
@@ -103,6 +129,7 @@ describe('chat', () => {
   it('on:message:send saves the message to the database', async () => {
     const newChannelRes = await request(app.getHttpServer())
       .post('/channels')
+      .set('Authorization', `Bearer ${userOneAccessToken}`)
       .send({ title: 'new channel', description: 'new channel description' })
       .expect(201);
 
@@ -116,6 +143,7 @@ describe('chat', () => {
 
     const channelRes = await request(app.getHttpServer())
       .get(`/channels/${newChannelRes.body.id}`)
+      .set('Authorization', `Bearer ${userOneAccessToken}`)
       .expect(200);
 
     expect(channelRes.body.messages).toHaveLength(1);
@@ -139,6 +167,7 @@ describe('chat', () => {
       request(app.getHttpServer())
         .post('/channels')
         .send({ title: 'new channel', description: 'new channel description' })
+        .set('Authorization', `Bearer ${userOneAccessToken}`)
         .expect(201),
       eventReception(clientOne, 'channel:created'),
       eventReception(clientTwo, 'channel:created'),
@@ -162,6 +191,7 @@ describe('chat', () => {
       request(app.getHttpServer())
         .post('/channels')
         .send({ title: 'new channel', description: 'new channel description' })
+        .set('Authorization', `Bearer ${userOneAccessToken}`)
         .expect(201),
       eventReception(clientOne, 'channel:created'),
       eventReception(clientTwo, 'channel:created'),
@@ -176,5 +206,25 @@ describe('chat', () => {
       eventReception(clientTwo, 'message:received'),
       eventReception(clientOne, 'message:send'),
     ]);
+  });
+
+  it('socket cannot connect without a valid access token', async () => {
+    clientOne.auth = {
+      token: '',
+    };
+
+    // Don't throw error for this test
+    clientOne.off('connect_error');
+
+    clientOne.connect();
+    await eventReception(clientOne, 'connect_error');
+
+    // Reset properties and listeners for future tests
+    clientOne.auth = {
+      token: userOneAccessToken,
+    };
+    clientOne.on('connect_error', (err) => {
+      throw new Error(err.message);
+    });
   });
 });

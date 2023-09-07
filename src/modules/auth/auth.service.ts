@@ -6,6 +6,7 @@ import { User } from '../../database/entities/User';
 import { LoginResponseDto, SignUpRequestDto, UserDto } from '../../contracts';
 import { UserMapper } from '../../mappers';
 import { compare, hash } from 'bcrypt';
+import { JwtClaims } from './types';
 
 @Injectable()
 export class AuthService {
@@ -42,6 +43,14 @@ export class AuthService {
     return UserMapper.EntityToDto(user);
   }
 
+  async getUserById(id: string) {
+    const user = await this.userRepository.findOne({ id: id });
+    if (user === null) {
+      return null;
+    }
+    return UserMapper.EntityToDto(user);
+  }
+
   async createNewUser(signUpRequestDto: SignUpRequestDto) {
     const { username, password } = signUpRequestDto;
 
@@ -61,9 +70,10 @@ export class AuthService {
 
   async login(userDto: UserDto): Promise<LoginResponseDto> {
     const { id, username } = userDto;
-    const payload = { username: username, sub: id };
+    const payload: JwtClaims = { username: username, sub: id };
     return {
       accessToken: this.jwtService.sign(payload),
+      user: userDto,
     };
   }
 }

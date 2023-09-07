@@ -6,8 +6,14 @@ import {
 } from '@nestjs/common';
 import { useContainer } from 'class-validator';
 import { AppModule } from './app.module';
+import { CustomSocketIOAdapter } from './modules/chat/CustomSocketIOAdapter';
 
-export const setupGlobalValidationPipe = (app: INestApplication) => {
+export const setupApp = (app: INestApplication) => {
+  setupGlobalValidationPipe(app);
+  setupCustomWebSocketAdapter(app);
+};
+
+const setupGlobalValidationPipe = (app: INestApplication) => {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -27,4 +33,8 @@ export const setupGlobalValidationPipe = (app: INestApplication) => {
     }),
   );
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+};
+
+const setupCustomWebSocketAdapter = (app: INestApplication) => {
+  app.useWebSocketAdapter(new CustomSocketIOAdapter(app));
 };
