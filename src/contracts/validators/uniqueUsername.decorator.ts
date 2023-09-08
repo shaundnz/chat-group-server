@@ -36,6 +36,6 @@ export class IsUniqueUsernameConstraint
   }
 
   defaultMessage(args: ValidationArguments) {
-    return `Username ${args.value} already exists`;
+    return `Username "${args.value}" already exists`;
   }
 }
