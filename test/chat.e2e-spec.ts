@@ -36,10 +36,10 @@ describe('chat', () => {
     await app.get(MikroORM).getSchemaGenerator().refreshDatabase();
     await seeder.seed(ChatTestDatabaseSeeder);
 
-    await app.listen(4000);
+    await app.listen(3000);
     await app.init();
 
-    const appUrl = await app.getUrl();
+    const appUrl = 'http://localhost:3000';
 
     const userOne = {
       username: 'userOne',
