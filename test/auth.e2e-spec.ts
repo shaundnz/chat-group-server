@@ -93,7 +93,7 @@ describe('auth', () => {
       .expect(400);
 
     expect(res.body.message).toEqual([
-      { error: 'Username userOne already exists', property: 'username' },
+      { error: 'Username "userOne" already exists', property: 'username' },
     ]);
 
     await request(app.getHttpServer())
