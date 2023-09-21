@@ -44,9 +44,8 @@ export class ChannelsController {
   async createChannel(
     @Body() createChannelDto: CreateChannelDto,
   ): Promise<ChannelDto> {
-    const newChannel = await this.channelsService.createChannel(
-      createChannelDto,
-    );
+    const newChannel =
+      await this.channelsService.createChannel(createChannelDto);
     await this.chatGateway.handleActiveClientsOnNewChannelCreated(newChannel);
     return newChannel;
   }
