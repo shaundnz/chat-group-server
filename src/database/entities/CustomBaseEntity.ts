@@ -5,9 +5,9 @@ export abstract class CustomBaseEntity {
   @PrimaryKey()
   id = v4();
 
-  @Property()
+  @Property({ length: 3 })
   createdAt: Date = new Date();
 
-  @Property({ onUpdate: () => new Date() })
+  @Property({ length: 3, onUpdate: () => new Date() })
   updatedAt: Date = new Date();
 }
