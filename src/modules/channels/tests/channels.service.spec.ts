@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Channel, Message } from '../../../database/entities';
 import { ChannelsService } from '../channels.service';
-import { EntityManager } from '@mikro-orm/sqlite';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { CreateChannelDto } from '../../../contracts';
 
 jest.mock('../../../mappers', () => ({

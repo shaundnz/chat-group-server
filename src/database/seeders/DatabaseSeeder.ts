@@ -1,5 +1,5 @@
 import { Seeder } from '@mikro-orm/seeder';
-import { EntityManager } from '@mikro-orm/sqlite';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { Channel } from '../entities';
 
 export class DatabaseSeeder extends Seeder {

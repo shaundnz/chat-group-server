@@ -18,7 +18,7 @@ import {
 import { ChannelCreatedEventResponseDto } from 'src/contracts/ChannelCreatedEventResponseDto';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Channel } from '../../database/entities';
-import { EntityRepository } from '@mikro-orm/sqlite';
+import { EntityRepository } from '@mikro-orm/postgresql';
 
 @WebSocketGateway({
   cors: {

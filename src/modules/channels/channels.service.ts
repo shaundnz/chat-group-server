@@ -1,4 +1,4 @@
-import { EntityRepository, EntityManager } from '@mikro-orm/sqlite';
+import { EntityRepository, EntityManager } from '@mikro-orm/postgresql';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import { ChannelDto, CreateChannelDto } from '../../contracts';

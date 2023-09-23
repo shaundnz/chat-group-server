@@ -68,7 +68,7 @@ describe('ChatGateway', () => {
             connect: false,
             dbName: 'test',
             entities: [Message],
-            type: 'sqlite',
+            type: 'postgresql',
           }),
         },
         {

@@ -3,7 +3,7 @@ import { AuthService } from '../auth.service';
 import { User } from '../../../database/entities';
 import { compare, hash } from 'bcrypt';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { EntityManager } from '@mikro-orm/sqlite';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpRequestDto } from 'src/contracts';
 
