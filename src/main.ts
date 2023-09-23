@@ -15,8 +15,12 @@ async function bootstrap() {
   });
 
   setupApp(app);
-  await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
-  await app.get(MikroORM).getSchemaGenerator().updateSchema();
+
+  // Setup the database if we are in dev
+  if (process.env.NODE_ENV === 'development') {
+    await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
+    await app.get(MikroORM).getSchemaGenerator().updateSchema();
+  }
   await app.listen(3000);
 }
 bootstrap();

@@ -1,0 +1,17 @@
+name: chat-app-backend-test
+services:
+  server:
+    environment:
+      - NODE_ENV=test
+      - POSTGRES_HOST=db
+    build:
+      target: test
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

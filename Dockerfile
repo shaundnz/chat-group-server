@@ -1,4 +1,6 @@
-FROM node:16 AS base
+FROM node:18-alpine AS base
+
+ARG NODE_ENV
 
 WORKDIR /app
 
@@ -8,14 +10,16 @@ RUN npm ci
 
 COPY . .
 
-FROM base AS build
-
 RUN npm run build 
 
-RUN npm run test
+FROM base as test
 
-RUN npm run test:e2e
+RUN chmod a+x ./scripts/run_tests.sh
 
-FROM build AS run
+ENTRYPOINT [ "./scripts/run_tests.sh" ]
 
-CMD ["npm", "run", "start:dev"]
+FROM base AS run
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]
