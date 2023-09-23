@@ -1,8 +1,6 @@
 import * as request from 'supertest';
-import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AuthTestDatabaseSeeder } from '../src/database/seeders';
 import { LoginRequestDto, SignUpRequestDto } from 'src/contracts';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/setup';
@@ -17,10 +15,6 @@ describe('auth', () => {
 
     app = module.createNestApplication();
     setupApp(app);
-
-    const seeder = app.get(MikroORM).getSeeder();
-    await app.get(MikroORM).getSchemaGenerator().refreshDatabase();
-    await seeder.seed(AuthTestDatabaseSeeder);
 
     await app.init();
   });

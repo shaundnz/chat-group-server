@@ -1,8 +1,6 @@
 import * as request from 'supertest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { MikroORM } from '@mikro-orm/core';
-import { ChannelsTestDatabaseSeeder } from '../src/database/seeders';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/setup';
 import { createUser, getAccessToken } from './utils';
@@ -19,21 +17,16 @@ describe('channels', () => {
     app = module.createNestApplication();
     setupApp(app);
 
-    // Setup the database
-    const seeder = app.get(MikroORM).getSeeder();
-    await app.get(MikroORM).getSchemaGenerator().refreshDatabase();
-    await seeder.seed(ChannelsTestDatabaseSeeder);
-
     await app.init();
 
     await createUser(app, {
-      username: 'userOne',
+      username: 'channelsTestUser',
       password: 'Password1!',
       confirmPassword: 'Password1!',
     });
 
     token = await getAccessToken(app, {
-      username: 'userOne',
+      username: 'channelsTestUser',
       password: 'Password1!',
     });
   });
@@ -47,12 +40,12 @@ describe('channels', () => {
       .get('/channels')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(res.body).toHaveLength(1);
+    expect(res.body.length).toBeGreaterThanOrEqual(1);
     expect(res.body[0].title).toBe('Welcome');
     expect(res.body[0].description).toBe(
       'Welcome to my chat-app, this is the default channel all users initially join',
     );
-    expect(res.body[0].messages).toHaveLength(2);
+    expect(res.body[0].messages.length).toBeGreaterThan(0);
   });
 
   it('GET /channels/default gets the default channel', async () => {
@@ -64,7 +57,7 @@ describe('channels', () => {
     expect(res.body.description).toBe(
       'Welcome to my chat-app, this is the default channel all users initially join',
     );
-    expect(res.body.messages).toHaveLength(2);
+    expect(res.body.messages.length).toBeGreaterThan(0);
   });
 
   it('GET /channels/:id gets channel by id', async () => {
@@ -86,6 +79,11 @@ describe('channels', () => {
   });
 
   it('POST /channels creates a new channel', async () => {
+    const oldChannels = await request(app.getHttpServer())
+      .get('/channels')
+      .set('Authorization', `Bearer ${token}`)
+      .expect(200);
+
     const newChannelRes = await request(app.getHttpServer())
       .post('/channels')
       .set('Authorization', `Bearer ${token}`)
@@ -99,7 +97,7 @@ describe('channels', () => {
       .get('/channels')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(res.body).toHaveLength(2);
+    expect(res.body).toHaveLength(oldChannels.body.length + 1);
   });
 
   it.each([

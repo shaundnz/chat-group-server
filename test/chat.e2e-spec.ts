@@ -1,8 +1,6 @@
 import * as request from 'supertest';
-import { MikroORM } from '@mikro-orm/core';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ChatTestDatabaseSeeder } from '../src/database/seeders';
 import { Socket, io } from 'socket.io-client';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/setup';
@@ -31,23 +29,18 @@ describe('chat', () => {
     app = module.createNestApplication();
     setupApp(app);
 
-    // Setup the database
-    const seeder = app.get(MikroORM).getSeeder();
-    await app.get(MikroORM).getSchemaGenerator().refreshDatabase();
-    await seeder.seed(ChatTestDatabaseSeeder);
-
     await app.listen(3000);
     await app.init();
 
     const appUrl = 'http://localhost:3000';
 
     const userOne = {
-      username: 'userOne',
+      username: 'chatTestUserOne',
       password: 'Password1!',
     };
 
     const userTwo = {
-      username: 'userTwo',
+      username: 'chatTestUserTwo',
       password: 'Password2@',
     };
 
