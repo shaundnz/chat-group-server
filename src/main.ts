@@ -21,6 +21,6 @@ async function bootstrap() {
     await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
     await app.get(MikroORM).getSchemaGenerator().updateSchema();
   }
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
