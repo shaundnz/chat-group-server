@@ -15,6 +15,10 @@ export default async () => {
       path: 'dist/database/seeders',
       pathTs: 'src/database/seeders',
     },
+    migrations: {
+      path: 'dist/database/migrations',
+      pathTs: 'src/database/migrations',
+    },
   };
 
   return config;
