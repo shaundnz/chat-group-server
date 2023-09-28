@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:18-alpine AS build
 
 ARG NODE_ENV
 
@@ -12,13 +12,13 @@ COPY . .
 
 RUN npm run build 
 
-FROM base as test
+FROM build as test
 
 RUN chmod a+x ./scripts/run_tests.sh
 
 ENTRYPOINT [ "./scripts/run_tests.sh" ]
 
-FROM base AS run
+FROM build AS run
 
 EXPOSE 3000
 
