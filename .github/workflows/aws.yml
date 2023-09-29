@@ -60,7 +60,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.ECR_REPOSITORY_REGION}}
+          aws-region: ${{ env.ECR_REPOSITORY_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
@@ -97,7 +97,7 @@ jobs:
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
 
-      - name: Configure AWS credentials to deploy task definition to ${{ env.ECS_CLUSTER_REGION}}
+      - name: Configure AWS credentials to deploy task definition to ${{ env.ECS_CLUSTER_REGION }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
