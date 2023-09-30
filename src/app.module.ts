@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AuthModule,
     ChatModule,
     ChannelsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
