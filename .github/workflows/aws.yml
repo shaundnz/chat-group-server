@@ -55,6 +55,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Run tests
+        run: npm run test:all
+
       - name: Configure AWS credentials to get public ECR in us-east-1
         uses: aws-actions/configure-aws-credentials@v1
         with:
