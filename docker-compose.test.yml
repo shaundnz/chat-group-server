@@ -3,7 +3,10 @@ services:
   server:
     environment:
       - NODE_ENV=test
+      - JWT_SECRET=testsecret
       - POSTGRES_HOST=db
+      - POSTGRES_DB=chat-app-db
+      - POSTGRES_PORT=5432
     build:
       target: test
     depends_on:
