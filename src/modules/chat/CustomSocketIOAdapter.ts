@@ -13,7 +13,7 @@ export class CustomSocketIOAdapter extends IoAdapter {
     const jwtService = this.app.get(JwtService);
     const server: Server = super.createIOServer(port, options);
 
-    server.use(createTokenMiddleware(jwtService));
+    server.of('api').use(createTokenMiddleware(jwtService));
 
     return server;
   }

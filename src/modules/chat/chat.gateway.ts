@@ -21,7 +21,7 @@ import { Channel } from '../../database/entities';
 import { EntityRepository } from '@mikro-orm/postgresql';
 
 @WebSocketGateway({
-  namespace: '/api',
+  namespace: 'api',
   cors: {
     origin: '*',
   },

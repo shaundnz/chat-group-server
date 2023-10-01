@@ -32,7 +32,7 @@ describe('chat', () => {
     await app.listen(3000);
     await app.init();
 
-    const appUrl = 'http://localhost:3000';
+    const socketUrl = 'http://localhost:3000/api';
 
     const userOne = {
       username: 'chatTestUserOne',
@@ -51,7 +51,7 @@ describe('chat', () => {
     userTwoAccessToken = await getAccessToken(app, userTwo);
 
     // Setup sockets
-    clientOne = io(appUrl, {
+    clientOne = io(socketUrl, {
       autoConnect: false,
       transports: ['websocket', 'polling'],
       auth: {
@@ -63,7 +63,7 @@ describe('chat', () => {
       throw new Error(err.message);
     });
 
-    clientTwo = io(appUrl, {
+    clientTwo = io(socketUrl, {
       autoConnect: false,
       transports: ['websocket', 'polling'],
       auth: {
