@@ -50,12 +50,65 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    env:
+      NODE_ENV: test
+      JWT_SECRET: testsecret
+      POSTGRES_DB: chat-app-db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
-      - name: Run tests
-        run: npm run test:all
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@v3
+        with:
+          path: server
+
+      - name: Clean install dependencies and build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Checkout client
+        uses: actions/checkout@v3
+        with:
+          repository: shaundnz/chat-group-client
+          path: client
+
+      - name: Clean install dependencies and build
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Start backend
+        run: |
+          npm database:reset -- TestSeeder
+          npm run start:prod
+
+      - name: Run E2E tests
+        working-directory: ./client
+        run: npm run test:integration
 
   deploy:
     name: Deploy
