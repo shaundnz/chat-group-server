@@ -78,13 +78,16 @@ jobs:
         with:
           path: server
 
-      - name: Clean install dependencies and build
+      - name: Clean install dependencies and build server
         run: |
           npm ci
           npm run build
 
       - name: Run unit tests
         run: npm run test
+
+      - name: Setup database
+        run: npm database:reset -- TestSeeder
 
       - name: Run E2E tests
         run: npm run test:e2e
@@ -95,16 +98,14 @@ jobs:
           repository: shaundnz/chat-group-client
           path: client
 
-      - name: Clean install dependencies and build
+      - name: Clean install dependencies and build client
         working-directory: ./client
         run: |
           npm ci
           npm run build
 
-      - name: Start backend
-        run: |
-          npm database:reset -- TestSeeder
-          npm run start:prod
+      - name: Start server
+        run: npm run start:prod
 
       - name: Run E2E tests
         working-directory: ./client
