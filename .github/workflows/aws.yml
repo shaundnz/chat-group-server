@@ -109,7 +109,10 @@ jobs:
           npm run build
 
       - name: Start server
-        run: npm run start:prod
+        uses: ./
+        with:
+          start: npm run start:prod
+          wait-on: 'http://localhost:3000'
 
       - name: Run E2E tests
         working-directory: ./client
