@@ -96,6 +96,12 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
 
+      - name: Start server
+        uses: ./
+        with:
+          start: npm run start:prod
+          wait-on: 'http://localhost:3000'
+
       - name: Checkout client
         uses: actions/checkout@v3
         with:
@@ -107,12 +113,6 @@ jobs:
         run: |
           npm ci
           npm run build
-
-      - name: Start server
-        uses: ./
-        with:
-          start: npm run start:prod
-          wait-on: 'http://localhost:3000'
 
       - name: Run E2E tests
         working-directory: ./client
