@@ -87,7 +87,7 @@ jobs:
         run: npm run test
 
       - name: Setup database
-        run: npm database:reset -- TestSeeder
+        run: npm run database:reset -- TestSeeder
 
       - name: Run E2E tests
         run: npm run test:e2e
