@@ -1,7 +1,7 @@
 import * as request from 'supertest';
+import { Socket, io } from 'socket.io-client';
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Socket, io } from 'socket.io-client';
 import { AppModule } from '../src/app.module';
 import { setupApp } from '../src/setup';
 import { createUser, getAccessToken } from './utils';
