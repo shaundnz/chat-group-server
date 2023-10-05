@@ -30,18 +30,6 @@ on:
   push:
     branches: ['main']
 
-env:
-  ECR_REGISTRY_ALIAS: o8v5n8z7
-  ECR_REPOSITORY_REGION: us-east-1
-  ECR_REPOSITORY: chat-app-api-repository
-  ECS_SERVICE: ecs-chat-app-api-service # set this to your Amazon ECS service name
-  ECS_CLUSTER_REGION: ap-southeast-2
-  ECS_CLUSTER: chat-app-cluster
-  ECS_TASK_DEFINITION: .aws/task-definition.json
-  CONTAINER_NAME:
-    ecs-chat-app-api
-
-    # containerDefinitions section of your task definition
 permissions:
   contents: read
 
@@ -49,6 +37,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    environment: test
 
     env:
       # Server env vars
@@ -61,14 +50,14 @@ jobs:
       POSTGRES_PASSWORD: postgres
 
       # Client env vars
-      VITE_API_BASE_URL: http://localhost:3000/api
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
 
     services:
       db:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
 
@@ -100,7 +89,7 @@ jobs:
         run: |
           npm run start:prod &
           sleep 5 &&
-          curl http://localhost:3000/api/health-check -I
+          curl $VITE_API_BASE_URL/health-check -I
 
       - name: Checkout client
         uses: actions/checkout@v3
@@ -123,6 +112,16 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     environment: production
+
+    env:
+      ECR_REGISTRY_ALIAS: o8v5n8z7
+      ECR_REPOSITORY_REGION: us-east-1
+      ECR_REPOSITORY: chat-app-api-repository
+      ECS_SERVICE: api-service
+      ECS_CLUSTER_REGION: ap-southeast-2
+      ECS_CLUSTER: chat-app-api-cluster
+      ECS_TASK_DEFINITION: .aws/task-definition.json
+      CONTAINER_NAME: ecs-chat-app-api
 
     steps:
       - name: Checkout
