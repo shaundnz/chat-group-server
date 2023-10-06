@@ -1,0 +1,75 @@
+on: workflow_call
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    environment: test
+
+    env:
+      # Server env vars
+      NODE_ENV: test
+      JWT_SECRET: testsecret
+      POSTGRES_DB: chat-app-db
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+      # Client env vars
+      VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
+        ports:
+          - 5432:5432
+
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+      - name: Checkout server
+        uses: actions/checkout@v3
+        with:
+          path: server
+
+      - name: Clean install dependencies and build server
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run unit tests
+        run: npm run test
+
+      - name: Setup database
+        run: npm run database:reset -- TestSeeder
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Start server
+        run: |
+          npm run start:prod &
+          sleep 5 &&
+          curl $VITE_API_BASE_URL/health-check -I
+
+      - name: Checkout client
+        uses: actions/checkout@v3
+        with:
+          repository: shaundnz/chat-group-client
+          path: client
+
+      - name: Clean install dependencies and build client
+        working-directory: ./client
+        run: |
+          npm ci
+          npm run build
+
+      - name: Run E2E tests
+        working-directory: ./client
+        run: npm run test:integration
