@@ -9,7 +9,7 @@ jobs:
     env:
       # Server env vars
       NODE_ENV: test
-      JWT_SECRET: testsecret
+      JWT_SECRET: notsecuresecret
       POSTGRES_DB: chat-app-db
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
