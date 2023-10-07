@@ -15,7 +15,7 @@ export class ChannelsService {
 
   async getChannels(): Promise<ChannelDto[]> {
     const channels = await this.channelRepository.findAll({
-      populate: ['messages'],
+      populate: ['messages', 'messages.user'],
     });
     return channels.map((channel) => ChannelMapper.EntityToDto(channel));
   }
@@ -24,7 +24,7 @@ export class ChannelsService {
     const channel = await this.channelRepository.findOne(
       { id: id },
       {
-        populate: ['messages'],
+        populate: ['messages', 'messages.user'],
       },
     );
 
@@ -39,7 +39,7 @@ export class ChannelsService {
     const channel = await this.channelRepository.findOne(
       { default: true },
       {
-        populate: ['messages'],
+        populate: ['messages', 'messages.user'],
       },
     );
     if (channel === null) {

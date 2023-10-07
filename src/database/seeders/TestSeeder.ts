@@ -22,14 +22,22 @@ class ChannelsTestDatabaseSeeder extends Seeder {
       default: true,
     });
 
+    const hashedPassword = await hash('Password1!', 5);
+    const channelTestUser = em.create(User, {
+      username: 'channelTestUser',
+      password: hashedPassword,
+    });
+
     em.create(Message, {
       content: 'Hello world',
       channel: channel,
+      user: channelTestUser,
     });
 
     em.create(Message, {
       content: 'Another message',
       channel: channel,
+      user: channelTestUser,
     });
   }
 }

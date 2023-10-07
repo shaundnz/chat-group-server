@@ -1,7 +1,7 @@
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityManager, EntityRepository } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
-import { Channel, Message } from '../../database/entities';
+import { Channel, Message, User } from '../../database/entities';
 import { wrap } from '@mikro-orm/core';
 
 @Injectable()
@@ -12,6 +12,8 @@ export class ChatService {
     private readonly messageRepository: EntityRepository<Message>,
     @InjectRepository(Channel)
     private readonly channelRepository: EntityRepository<Channel>,
+    @InjectRepository(User)
+    private readonly userRepository: EntityRepository<User>,
   ) {}
 
   async getMessages() {
@@ -19,14 +21,15 @@ export class ChatService {
     return wrap(messages);
   }
 
-  async saveMessage(channelId: string, content: string) {
+  async saveMessage(userId: string, channelId: string, content: string) {
+    const user = await this.userRepository.findOne({ id: userId });
     const channel = await this.channelRepository.findOne({ id: channelId });
-    if (channel == null) {
+    if (channel === null || user === null) {
       return null;
     }
 
     const message = this.messageRepository.create(
-      new Message(content, channel),
+      new Message(content, channel, user),
     );
 
     channel.messages.add(message);

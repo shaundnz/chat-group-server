@@ -141,6 +141,7 @@ describe('chat', () => {
 
     expect(channelRes.body.messages).toHaveLength(1);
     expect(channelRes.body.messages[0].content).toBe('new message');
+    expect(channelRes.body.messages[0].user.username).toBe('chatTestUserOne');
   });
 
   it('channel:created event is emitted to all connected clients when a new channel is created', async () => {

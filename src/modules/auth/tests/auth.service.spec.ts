@@ -13,7 +13,7 @@ jest.mock('../../../mappers', () => ({
   },
 }));
 
-type TestUserEntity = Omit<User, 'createdAt' | 'updatedAt'>;
+type TestUserEntity = Omit<User, 'createdAt' | 'updatedAt' | 'messages'>;
 
 describe('AuthService', () => {
   let authService: AuthService;

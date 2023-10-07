@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { Channel, Message } from '../../../database/entities';
+import { Channel, Message, User } from '../../../database/entities';
 import { ChannelsService } from '../channels.service';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { CreateChannelDto } from '../../../contracts';
@@ -10,8 +10,15 @@ jest.mock('../../../mappers', () => ({
     EntityToDto: jest.fn().mockImplementation((channel) => channel),
   },
 }));
-
-type TestMessageEntity = Omit<Message, 'id' | 'updatedAt' | 'channel'>;
+type TestUserEntity = Omit<
+  User,
+  'updatedAt' | 'createdAt' | 'password' | 'messages'
+>;
+type TestMessageEntity =
+  | Omit<Message, 'id' | 'updatedAt' | 'channel' | 'user'>
+  | {
+      user: TestUserEntity;
+    };
 type TestChannelEntity = Omit<
   Channel,
   'createdAt' | 'updatedAt' | 'messages'
@@ -26,14 +33,32 @@ describe('ChannelsService', () => {
       title: 'Welcome channel',
       description: 'description 1',
       default: true,
-      messages: [{ createdAt: new Date(), content: 'Hello' }],
+      messages: [
+        {
+          createdAt: new Date(),
+          content: 'Hello',
+          user: {
+            id: '1',
+            username: 'userOne',
+          },
+        },
+      ],
     },
     {
       id: '2',
       title: 'Another channel',
       description: 'description 2',
       default: false,
-      messages: [{ createdAt: new Date(), content: 'Another message' }],
+      messages: [
+        {
+          createdAt: new Date(),
+          content: 'Another message',
+          user: {
+            id: '2',
+            username: 'userTwo',
+          },
+        },
+      ],
     },
   ];
 
@@ -103,7 +128,7 @@ describe('ChannelsService', () => {
       {
         default: true,
       },
-      { populate: ['messages'] },
+      { populate: ['messages', 'messages.user'] },
     );
     expect(channel).not.toBeNull();
     expect(channel).toEqual(channelEntities[0]);
@@ -116,13 +141,17 @@ describe('ChannelsService', () => {
       {
         default: true,
       },
-      { populate: ['messages'] },
+      { populate: ['messages', 'messages.user'] },
     );
     expect(channel).toBeNull();
   });
 
   it('should return a channel by id if it exists', async () => {
     const channel = await channelsService.getChannelById('1');
+    expect(mockChannelRepository.findOne).toHaveBeenCalledWith(
+      { id: '1' },
+      { populate: ['messages', 'messages.user'] },
+    );
     expect(channel).not.toBeNull();
     expect(channel).toEqual(channelEntities[0]);
   });

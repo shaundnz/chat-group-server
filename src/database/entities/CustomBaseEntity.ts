@@ -1,9 +1,11 @@
-import { PrimaryKey, Property } from '@mikro-orm/core';
+import { OptionalProps, PrimaryKey, Property } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
-export abstract class CustomBaseEntity {
+export abstract class CustomBaseEntity<E = never, K extends keyof E = never> {
+  [OptionalProps]?: 'id' | 'createdAt' | 'updatedAt' | K;
+
   @PrimaryKey()
-  id = v4();
+  id: string = v4();
 
   @Property({ length: 3 })
   createdAt: Date = new Date();

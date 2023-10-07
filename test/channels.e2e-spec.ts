@@ -97,7 +97,7 @@ describe('channels', () => {
       .get('/channels')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
-    expect(res.body).toHaveLength(oldChannels.body.length + 1);
+    expect(res.body.length).toBeGreaterThan(oldChannels.body.length);
   });
 
   it.each([

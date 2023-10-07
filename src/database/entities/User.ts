@@ -1,5 +1,12 @@
-import { Entity, Property, Unique } from '@mikro-orm/core';
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  Property,
+  Unique,
+} from '@mikro-orm/core';
 import { CustomBaseEntity } from './CustomBaseEntity';
+import { Message } from './Message';
 
 @Entity()
 export class User extends CustomBaseEntity {
@@ -7,7 +14,7 @@ export class User extends CustomBaseEntity {
   @Unique()
   username: string;
 
-  @Property()
+  @Property({ hidden: true })
   password: string;
 
   constructor(username: string, password: string) {
@@ -15,4 +22,10 @@ export class User extends CustomBaseEntity {
     this.username = username;
     this.password = password;
   }
+
+  @OneToMany({
+    entity: () => Message,
+    mappedBy: (message) => message.user,
+  })
+  messages = new Collection<Message>(this);
 }
