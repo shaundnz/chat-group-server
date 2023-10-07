@@ -116,6 +116,9 @@ describe('ChannelsService', () => {
 
   it('should return a list of all channels', async () => {
     const channels = await channelsService.getChannels();
+    expect(mockChannelRepository.findAll).toHaveBeenCalledWith({
+      populate: ['messages', 'messages.user'],
+    });
     expect(channels).toEqual(channelEntities);
   });
 
