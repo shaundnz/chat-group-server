@@ -18,6 +18,10 @@ describe('ChannelsController', () => {
           channelId: '1',
           createdAt: new Date().toJSON(),
           content: 'hello',
+          user: {
+            id: '1',
+            username: 'userOne',
+          },
         },
       ],
     },
@@ -31,6 +35,10 @@ describe('ChannelsController', () => {
           channelId: '2',
           createdAt: new Date().toJSON(),
           content: 'world',
+          user: {
+            id: '2',
+            username: 'userTwo',
+          },
         },
       ],
     },

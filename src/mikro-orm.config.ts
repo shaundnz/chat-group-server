@@ -1,10 +1,12 @@
 import { Options } from '@mikro-orm/core';
+import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import 'dotenv/config';
 
 export default async () => {
   const config: Options = {
     entities: ['./dist/database/entities'],
     entitiesTs: ['./src/database/entities'],
+    metadataProvider: TsMorphMetadataProvider,
     dbName: process.env.POSTGRES_DB,
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,

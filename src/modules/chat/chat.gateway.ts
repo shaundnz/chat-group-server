@@ -19,6 +19,7 @@ import { ChannelCreatedEventResponseDto } from 'src/contracts/ChannelCreatedEven
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Channel } from '../../database/entities';
 import { EntityRepository } from '@mikro-orm/postgresql';
+import { SocketWithJwtUser } from '../auth/types';
 
 @WebSocketGateway({
   namespace: 'api',
@@ -40,26 +41,29 @@ export class ChatGateway implements OnGatewayConnection {
   @SubscribeMessage('message:send')
   @UseRequestContext()
   async handleEvent(
-    client: Socket,
+    client: SocketWithJwtUser,
     data: SendMessageEventRequestDto,
   ): Promise<WsResponse<SendMessageEventResponseDto>> {
     const event = 'message:send';
     const newMessage = await this.chatService.saveMessage(
+      client.user.sub,
       data.channelId,
       data.content,
     );
     if (!newMessage) {
       throw new WsException('Could not find channel');
     }
-    const receivedMessageEventResponseDto: ReceivedMessageEventDto = {
+    const messageEventResponseDto: ReceivedMessageEventDto = {
       channelId: data.channelId,
       content: data.content,
-      createdAt: newMessage.createdAt,
+      createdAt: newMessage.createdAt.toJSON(),
+      user: {
+        id: newMessage.user.id,
+        username: newMessage.user.username,
+      },
     };
-    client
-      .to(data.channelId)
-      .emit('message:received', receivedMessageEventResponseDto);
-    return { event, data: { ...data, createdAt: newMessage.createdAt } };
+    client.to(data.channelId).emit('message:received', messageEventResponseDto);
+    return { event, data: messageEventResponseDto };
   }
 
   async handleActiveClientsOnNewChannelCreated(newChannel: ChannelDto) {

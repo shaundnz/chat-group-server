@@ -5,7 +5,7 @@ import { NotFoundException } from '@nestjs/common';
 import { User } from '../../../database/entities';
 import { SignUpRequestDto } from 'src/contracts';
 
-type TestUserEntity = Omit<User, 'createdAt' | 'updatedAt'>;
+type TestUserEntity = Omit<User, 'createdAt' | 'updatedAt' | 'messages'>;
 
 describe('AuthController', () => {
   let authController: AuthController;

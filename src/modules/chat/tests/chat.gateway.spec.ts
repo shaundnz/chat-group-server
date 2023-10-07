@@ -15,6 +15,9 @@ describe('ChatGateway', () => {
     to: jest.fn(() => mockClientSocket),
     join: jest.fn(),
     emit: jest.fn(),
+    user: {
+      sub: '1',
+    },
   };
 
   const sockets = [
@@ -51,11 +54,17 @@ describe('ChatGateway', () => {
   const mockChatService = {
     saveMessage: jest
       .fn()
-      .mockImplementation((channelId: string, content: string) => ({
-        channelId,
-        content,
-        createdAt: now,
-      })),
+      .mockImplementation(
+        (userId: string, channelId: string, content: string) => ({
+          channelId,
+          content,
+          createdAt: now,
+          user: {
+            id: userId,
+            username: 'userOne',
+          },
+        }),
+      ),
   };
 
   beforeEach(async () => {
@@ -98,7 +107,12 @@ describe('ChatGateway', () => {
     expect(mockClientSocket.to).toHaveBeenCalledWith('1');
     expect(mockClientSocket.to().emit).toHaveBeenCalledWith(
       'message:received',
-      { channelId: '1', content: 'hello', createdAt: now },
+      {
+        channelId: '1',
+        content: 'hello',
+        createdAt: now.toJSON(),
+        user: { id: '1', username: 'userOne' },
+      },
     );
   });
 
@@ -107,7 +121,7 @@ describe('ChatGateway', () => {
       channelId: '1',
       content: 'hello',
     });
-    expect(mockChatService.saveMessage).toHaveBeenCalledWith('1', 'hello');
+    expect(mockChatService.saveMessage).toHaveBeenCalledWith('1', '1', 'hello');
   });
 
   it('should add a user to all channels rooms on connection', async () => {

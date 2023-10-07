@@ -1,4 +1,6 @@
-export class SendMessageEventRequestDto {
-  channelId: string;
-  content: string;
-}
+import { MessageDto } from './MessageDto';
+
+export type SendMessageEventRequestDto = Omit<
+  MessageDto,
+  'id' | 'createdAt' | 'user'
+>;

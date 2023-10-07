@@ -3,7 +3,7 @@ import { CustomBaseEntity } from './CustomBaseEntity';
 import { Message } from './Message';
 
 @Entity()
-export class Channel extends CustomBaseEntity {
+export class Channel extends CustomBaseEntity<Channel, 'default'> {
   @Property()
   title: string;
 

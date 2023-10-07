@@ -14,9 +14,13 @@ export class ChannelMapper {
       .sort((a, b) => a.createdAt.getDate() - b.createdAt.getDate())
       .map((message) => ({
         id: message.id,
-        channelId: message.channelId,
+        channelId: message.channel.id,
         createdAt: message.createdAt.toJSON(),
         content: message.content,
+        user: {
+          id: message.user.id,
+          username: message.user.username,
+        },
       }));
 
     return dto;
