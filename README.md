@@ -1,73 +1,85 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<div align="center">
+<h3 align="center">Chat-App</h3>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+  <p align="center">
+    A full stack chat application to allow realtime communication between users with WebSockets.
+    <br />
+    <a href="https://chat-app.shaundnz.com/"><strong>View Demo</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/shaundnz/chat-group-client">Client Repository</a>
+    ·
+    <a href="https://github.com/shaundnz/chat-group-server">Server Repository</a>
+  </p>
+</div>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## About The Project
 
-## Description
+A chat application built with SvelteKit and NestJS. WebSockets allow real time communication between users. This app is hosted on AWS, and both client and server repositories have github actions which deploys the app to AWS on pushes to the main branch.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+<table>
+  <tr>
+    <td>Chat Page</td>
+     <td>Login Page</td>
+     <td>Sign Up Page</td>
+  </tr>
+  <tr>
+    <td><img alt="Chat Page" src="https://i.imgur.com/rWJdu4E.png"></td>
+    <td><img alt="Login Page" src="https://i.imgur.com/aHjmucd.png"></td>
+    <td><img alt="Sign Up Page" src="https://i.imgur.com/YAEaf4t.png"></td>
+  </tr>
+ </table>
 
-## Installation
+### Built With
 
-```bash
-$ npm install
-```
+- [![Svelte][Svelte.dev]][Svelte-url]
+- [![NestJS][Nest.js]][Nest-url]
+- [![Aws][Aws]][Aws-url]
+- [![GitHubActions][Github-actions]][Github-actions-url]
 
-## Running the app
+## Architecture
 
-```bash
-# development
-$ npm run start
+![AWS architecture diagram for chat-app](https://i.imgur.com/KC1dLMX.png)
 
-# watch mode
-$ npm run start:dev
+### Request Flow
 
-# production mode
-$ npm run start:prod
-```
+1. Requests to `chat-app.shaundnz.com/*` are received by the cloudfront distribution
+2. If the URL matches `chat-app.shaundnz.com/api/*`
+   1. Forward the request to the application load balancer
+   2. The matching rule forwards the request the target group registered with `api-service`
+3. All other URLs are forwarded to the S3 bucket. The relative URL corresponds to the object path in the bucket.
 
-## Test
+## Deployment Pipelines
 
-```bash
-# unit tests
-$ npm run test
+### Client
 
-# e2e tests
-$ npm run test:e2e
+![Chat-app client deployment pipeline](https://i.imgur.com/xDlzL8G.png)
 
-# test coverage
-$ npm run test:cov
-```
+### Server
 
-## Support
+![Chat-app server deployment pipeline](https://i.imgur.com/pp6URDC.png)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Additional Notes
 
-## Stay in touch
+### Motivations
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+This project was a chance to learn new frameworks and technologies that I haven't used before. For the frontend, coming from React, Svelte and SvelteKit was an interesting change of pace and a fun challenge to learn. The principles of building responsive applications remained the same, but I loved Svelte's focus on simple syntax and minimal boilerplate code.
 
-## License
+Similarly, for the backend, I challenged myself to use NestJs for this app. The focus on dependency injection meant it felt similar to ASP.NET apps which I am already familiar with. This was also the first API I had built using WebSockets, instead of just the standard REST endpoints, I used Socket.io to integrate WebSockets into the API to connect to clients, and send and receive events.
 
-Nest is [MIT licensed](LICENSE).
+I also wanted to take this project all the way to being hosted on the cloud and accessible to anybody, not just running locally. For this I used AWS and GitHub actions, over the course of this project I became very comfortable building CI/CD pipelines that take source code and deploys artifacts to the cloud.
+
+### Contact Me
+
+[Personal Website](https://shaundnz.com/)
+
+[LinkedIn](https://www.linkedin.com/feed/)
+
+[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
+[Svelte-url]: https://svelte.dev/
+[Nest.js]: https://img.shields.io/badge/nestjs-%23E0234E.svg?style=for-the-badge&logo=nestjs&logoColor=white
+[Nest-url]: https://nextjs.org/
+[Aws]: https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white
+[Aws-url]: aws.amazon.com
+[Github-actions]: https://img.shields.io/badge/github%20actions-%232671E5.svg?style=for-the-badge&logo=githubactions&logoColor=white
+[Github-actions-url]: https://github.com/features/actions
